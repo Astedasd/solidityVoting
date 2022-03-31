@@ -4,7 +4,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract VoteContract {
 
-    address private owner;
+    address public owner;
 
     // Проверка на owner
     modifier ownerOnly() {

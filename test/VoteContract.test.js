@@ -6,18 +6,17 @@ describe("Voting Contract", function() {
     let owner;
     let addr1;
     let addr2;
-    let addrs;
+    let addr3;
+    let addr4;
     let Voting;
     let voting;
 
     beforeEach(async function(){
-        [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
-        Voting = await ethers.getContractFactory("VoteContract");
-        //[owner, addr1, addr2, ...addrs] = await ethers.getSigners();
-        //[owner, acc1, acc2, acc3] = await ethers.getSigners();
-        //const VotingContract = await ethers.getContractFactory("VoteContract", owner);
+        [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
+        const Voting = await ethers.getContractFactory("VoteContract", owner);
         voting = await Voting.deploy();
         await voting.deployed();
+        console.log(voting.address);
     })
 
     // async function vote(contractID, ){
@@ -41,17 +40,55 @@ describe("Voting Contract", function() {
             expect(await voting.owner()).to.equal(owner.address);
         })
 
-        it("should be possible to create voting by owner", async function(){
-            const tx = await hardhatVoting.addVoting(addr1,addr2)
-            await tx.wait()
+        
 
         })
+
+    describe("Creating Voting", function (){
+
+        it("should be possible to create voting by owner", async function () {
+            const tx = await voting.connect(owner).addVoting([addr1.address, addr2.address]);
+            await tx.wait();
+        })
+            
+        it("should be impossible to create voting by non owner", async function(){
+            await expect(
+                voting.connect(addr1).addVoting([addr1.address, addr2.address])
+              ).to.be.revertedWith("You are not owner");
+        })
+
+        it("should be possible to create multiple votings", async function () {
+            const tx1 = await voting.connect(owner).addVoting([addr1.address, addr2.address]);
+            const tx2 = await voting.connect(owner).addVoting([addr3.address, addr4.address]);
+            await tx1.wait();
+            await tx2.wait();
+        })
+
+        // it("should be possible to get voting info", async function(){
+        // const tx = await voting.connect(owner).addVoting([addr1.address, addr2.address]);
+        // await tx.wait();
+        // let info;
+        // info = await voting.getVotingInfo("0");
+        // console.log(info);
+        // })
+        
+
+    }) 
+
+    describe("Withdraw Comission", function () {
+        //Невозможно вывести ноль
+        it("should be impossible to withdraw if there is nothing to withdraw", async function () {
+            const tx = await voting.connect(owner).addVoting([addr1.address, addr2.address]);
+            await tx.wait();
+        })
+        // возможен вывод на owner
+        // невозможен вывод на не owner
     })
+
+        
+    
 })
-    // it("should be impossible to create voting by non owner", async function(){
-    //     const tx = await voting.addVoting(acc2,acc3)
-    //     await tx.wait()
-    //   })
+    
 
     // it("should be possible to vote", async function(){
     //     const tx = await voting.addVoting(acc2,acc3)
@@ -64,11 +101,6 @@ describe("Voting Contract", function() {
     //   })
 
     // it("should be possible to get voting info", async function(){
-    //     const tx = await voting.addVoting(acc2,acc3)
-    //     await tx.wait()
-    //   })
-
-    // it("should be possible to withdraw comission after voting", async function(){
     //     const tx = await voting.addVoting(acc2,acc3)
     //     await tx.wait()
     //   })
