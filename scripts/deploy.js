@@ -1,8 +1,3 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 
 async function main() {
@@ -13,12 +8,12 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  // We get the contract to deploy
+
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contract with the account:", deployer.address);
   const Voting = await hre.ethers.getContractFactory("VoteContract");
-  const voting = await Voting.deploy("Hello, Hardhat!");
-
+  const voting = await Voting.deploy();
   await voting.deployed();
-
   console.log("Voting deployed to:", voting.address);
 }
 
